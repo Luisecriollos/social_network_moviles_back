@@ -4,7 +4,13 @@ import { E_TABLES, IQueryOptions, TABLE_MAP } from '../interfaces/store';
 export default {
   list(table: E_TABLES, options?: IQueryOptions) {
     const Table = TABLE_MAP[table];
-    return Table.find({ ...options?.filter });
+    let result = Table.find({ ...options?.filter });
+    if (options?.populate) {
+      options.populate.forEach((opt) => {
+        result = result.populate(opt.field, opt.select);
+      });
+    }
+    return result;
   },
   get<T>(table: E_TABLES, id: string): Query<HydratedDocument<T>, any> {
     const Table = TABLE_MAP[table];

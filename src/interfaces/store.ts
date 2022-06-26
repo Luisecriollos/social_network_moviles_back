@@ -11,8 +11,12 @@ export const TABLE_MAP: { [table: string]: Model<any> } = {
   USER: User,
   TWEETS: Tweet,
 };
-
+interface IPopulateOption {
+  field: string;
+  select: string;
+}
 export interface IQueryOptions {
   sort?: string;
   filter?: any;
+  populate?: IPopulateOption[];
 }

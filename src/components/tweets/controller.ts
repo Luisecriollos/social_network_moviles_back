@@ -8,7 +8,13 @@ const TABLE = E_TABLES.TWEETS;
 export default {
   async getTweets() {
     try {
-      const tweets = await store.list(TABLE);
+      const fieldsToPopulate = '_id name username profileImg';
+      const tweets = await store.list(TABLE, {
+        populate: [
+          { field: 'owner', select: fieldsToPopulate },
+          { field: 'likes', select: fieldsToPopulate },
+        ],
+      });
       return tweets;
     } catch (error) {
       throw error;
