@@ -17,6 +17,7 @@ import './config/db';
 
 import authRoutes from './components/auth/routes';
 import tweetRoutes from './components/tweets/routes';
+import searchRoutes from './components/search/routes';
 import passportMiddleware from './middlewares/passport';
 import loggedIn from './middlewares/loggedIn';
 
@@ -45,6 +46,7 @@ passport.use(passportMiddleware);
 
 app.use('/auth', authRoutes);
 app.use('/tweets', loggedIn, tweetRoutes);
+app.use('/search', searchRoutes);
 
 const port = config.api.PORT;
 app.listen(port, () => {

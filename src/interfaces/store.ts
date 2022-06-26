@@ -15,8 +15,14 @@ interface IPopulateOption {
   field: string;
   select: string;
 }
+
+interface ITermOption {
+  field: string;
+  term: string;
+}
 export interface IQueryOptions {
   sort?: string;
   filter?: any;
   populate?: IPopulateOption[];
+  search?: ITermOption;
 }

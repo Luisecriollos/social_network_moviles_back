@@ -94,7 +94,6 @@ const toggleLikeTweet = async (req: Request, res: Response) => {
 
 const uploadTweetAttachments = async (req: Request, res: Response) => {
   const twId = req.params['tweetId'];
-  console.log(req.files);
   const urls = await uploadMultipleFiles(req.files as Express.Multer.File[], twId);
   const tweet = await controller.setTweetAttachments(twId, urls);
   res.status(201).json(tweet);

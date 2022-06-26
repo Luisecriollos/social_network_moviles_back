@@ -4,7 +4,16 @@ import { E_TABLES, IQueryOptions, TABLE_MAP } from '../interfaces/store';
 export default {
   list(table: E_TABLES, options?: IQueryOptions) {
     const Table = TABLE_MAP[table];
-    let result = Table.find({ ...options?.filter });
+    let config = {
+      ...options?.filter,
+    };
+    if (options?.search) {
+      config = {
+        ...config,
+        [options.search.field]: { $regex: options.search.term, $options: 'i' },
+      };
+    }
+    let result = Table.find({ ...config });
     if (options?.populate) {
       options.populate.forEach((opt) => {
         result = result.populate(opt.field, opt.select);
