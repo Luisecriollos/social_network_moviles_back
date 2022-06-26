@@ -6,7 +6,4 @@ const app = initializeApp(config.firebase);
 
 export const multer = Multer({
   storage: Multer.memoryStorage(),
-  limits: {
-    fileSize: 1024 * 1024 * 1024 * 2,
-  },
 });
