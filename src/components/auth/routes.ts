@@ -1,9 +1,17 @@
 import express, { Request, Response } from 'express';
 import { IUser } from '../../interfaces/auth';
+import loggedIn from '../../middlewares/loggedIn';
 import response from '../../network/response';
 import controller from './controller';
 
 const router = express.Router();
+
+const getProfile = async (req: Request, res: Response) => {
+  response.success(req, res, {
+    message: 'Profile fetched successfully!',
+    body: req.user,
+  });
+};
 
 const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -54,6 +62,7 @@ const register = async (req: Request, res: Response) => {
   }
 };
 
+router.get('/profile', loggedIn, getProfile);
 router.post('/register', register);
 router.post('/login', login);
 
