@@ -26,15 +26,25 @@ export default {
     return Table.findById(id);
   },
 
-  upsert<T extends { _id?: string | Types.ObjectId }>(table: E_TABLES, data: T): Query<HydratedDocument<T>, any> {
+  upsert<T extends { _id?: string | Types.ObjectId }>(
+    table: E_TABLES,
+    data: T,
+    populate?: IQueryOptions<T>['populate']
+  ): Query<HydratedDocument<T>, any> {
     const Table = TABLE_MAP[table];
     const { _id, ...body } = data;
 
-    return Table.findOneAndUpdate(
+    let operation = Table.findOneAndUpdate(
       { _id: _id || new mongoose.Types.ObjectId() },
       { $set: body },
-      { returnDocument: 'after', new: !_id, upsert: true }
+      { returnDocument: 'after', returnOriginal: false, upsert: true }
     );
+    if (populate)
+      populate.forEach((opt) => {
+        operation = operation.populate(opt.field.toString(), opt.select);
+      });
+
+    return operation;
   },
 
   remove(table: E_TABLES, id: string) {

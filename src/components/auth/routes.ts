@@ -13,6 +13,26 @@ const getProfile = async (req: Request, res: Response) => {
   });
 };
 
+const updateProfile = async (req: Request<any, any, IUser>, res: Response) => {
+  const userId = req.user?._id;
+
+  if (!userId)
+    return response.error(req, res, {
+      message: 'Invalid body.',
+    });
+
+  try {
+    const user = await controller.updateProfile({ ...req.body, _id: userId });
+    response.success(req, res, {
+      body: user,
+    });
+  } catch (error: any) {
+    response.error(req, res, {
+      details: error.message,
+    });
+  }
+};
+
 const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
@@ -62,7 +82,7 @@ const register = async (req: Request, res: Response) => {
   }
 };
 
-router.get('/profile', loggedIn, getProfile);
+router.route('/profile').get(loggedIn, getProfile).put(loggedIn, updateProfile);
 router.post('/register', register);
 router.post('/login', login);
 

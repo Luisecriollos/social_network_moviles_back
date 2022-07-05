@@ -16,11 +16,17 @@ const userSchema = new Schema<IUser>({
     minlength: 6,
     maxlength: 500,
   },
+  username: {
+    type: String,
+    required: true,
+    minLength: 5,
+    maxLength: 200,
+  },
   name: {
     type: String,
     required: true,
     trim: true,
-    lowercase: true,
+    set: (name: string) => name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
     maxlength: 100,
   },
   phoneNumber: {
@@ -32,7 +38,7 @@ const userSchema = new Schema<IUser>({
   },
   profileImg: {
     type: String,
-    default: process.env.HOST + '/images/profileDefault.jpg',
+    default: '',
   },
 });
 

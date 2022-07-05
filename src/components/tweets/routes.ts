@@ -25,10 +25,14 @@ const getTweets = async (req: Request<any, unknown, unknown, { type: TTimeline }
       following = (await followersController.getFollowing(req.user._id.toString())).map((user) => user._id.toString());
 
     const tweets = await controller.getTweets(type, following);
+    const retweets = await controller.getRetweets(type, following);
 
     response.success(req, res, {
       message: 'Tweets retrieved successfully!',
-      body: tweets,
+      body: {
+        tweets,
+        retweets,
+      },
     });
   } catch (error: any) {
     return response.error(req, res, {
@@ -91,6 +95,29 @@ const deleteTweet = async (req: Request, res: Response) => {
   }
 };
 
+const retweet = async (req: Request<{ tweetId: string }>, res: Response) => {
+  const userId = req.user?._id.toString();
+  const tweetId: string = req.params.tweetId;
+
+  if (!userId || !tweetId)
+    return response.error(req, res, {
+      message: 'Unathorized',
+      status: 401,
+    });
+  try {
+    const retweet = await controller.retweet(tweetId, userId);
+    response.success(req, res, {
+      body: retweet,
+      message: `Tweet ${retweet ? 'retweeted' : 'unretweeted'} successfully!`,
+      status: 200,
+    });
+  } catch (error: any) {
+    return response.error(req, res, {
+      details: error.message,
+    });
+  }
+};
+
 const toggleLikeTweet = async (req: Request, res: Response) => {
   if (!req.user?._id) return;
   try {
@@ -115,6 +142,7 @@ const uploadTweetAttachments = async (req: Request, res: Response) => {
 };
 
 router.route('/').get(getTweets).post(addTweet).delete(deleteTweet);
+router.post('/retweet/:tweetId', retweet);
 router.post('/:tweetId/files', multer.array('files', 4), uploadTweetAttachments);
 router.route('/toggleLike/:tweetId').patch(toggleLikeTweet);
 

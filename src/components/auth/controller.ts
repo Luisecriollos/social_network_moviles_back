@@ -37,6 +37,15 @@ export default {
     }
   },
 
+  async updateProfile(user: IUser) {
+    try {
+      const updatedUser = await store.upsert<IUser>(TABLE, user);
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   listRegistries(filter?: any) {
     return store.list(TABLE, { filter });
   },
