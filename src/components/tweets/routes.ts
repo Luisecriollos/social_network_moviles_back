@@ -1,16 +1,31 @@
 import express, { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { ITweet } from '../../interfaces/tweets';
+import { ITweet, TTimeline } from '../../interfaces/tweets';
 import { multer } from '../../middlewares/multer';
 import response from '../../network/response';
 import { uploadMultipleFiles } from '../../utils/uploadFile';
+import followersController from '../user/controller';
 import controller from './controller';
 
 const router = express.Router();
 
-const getTweets = async (req: Request, res: Response) => {
+const getTweets = async (req: Request<any, unknown, unknown, { type: TTimeline }>, res: Response) => {
+  let type = req.query.type;
+
+  if (!req.user?._id)
+    return response.error(req, res, {
+      message: 'Unathorized',
+      status: 401,
+    });
+
+  if (!type) type = 'all';
   try {
-    const tweets = await controller.getTweets();
+    let following: string[] = [];
+    if (type === 'followers')
+      following = (await followersController.getFollowing(req.user._id.toString())).map((user) => user._id.toString());
+
+    const tweets = await controller.getTweets(type, following);
+
     response.success(req, res, {
       message: 'Tweets retrieved successfully!',
       body: tweets,
@@ -33,7 +48,7 @@ const addTweet = async (req: Request, res: Response) => {
   }
   try {
     if (!req.user?._id) return;
-    tweet.owner = req.user._id;
+    tweet.owner = new Types.ObjectId(req.user._id);
     const resData = await controller.addTweet(tweet);
     response.success(req, res, {
       message: 'Tweet added sucessfully!',
@@ -49,7 +64,7 @@ const addTweet = async (req: Request, res: Response) => {
 const deleteTweet = async (req: Request, res: Response) => {
   const data: ITweet = req.body;
   try {
-    const tweet = await controller.getSingleTweet(data._id);
+    const tweet = await controller.getSingleTweet(data._id as string);
     if (!tweet) {
       return response.error(req, res, {
         message: "This tweet doesn't exist.",
@@ -64,7 +79,7 @@ const deleteTweet = async (req: Request, res: Response) => {
         details: 'User is not the owner of the tweet',
       });
     }
-    await controller.deleteTweet(tweet._id);
+    await controller.deleteTweet(tweet._id as string);
     response.success(req, res, {
       message: 'Tweet deleted sucessfully!',
       status: 204,

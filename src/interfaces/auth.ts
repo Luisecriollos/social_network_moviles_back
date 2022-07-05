@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 
 export interface IUser {
-  _id: mongoose.Types.ObjectId;
+  _id: Types.ObjectId;
   email?: string;
   name?: string;
   phoneNumber?: string;

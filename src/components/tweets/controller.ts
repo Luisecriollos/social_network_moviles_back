@@ -1,15 +1,18 @@
 import store from '../../store/mongo';
-import { ITweet } from '../../interfaces/tweets';
+import { ITweet, TTimeline } from '../../interfaces/tweets';
 import { E_TABLES } from '../../interfaces/store';
 import { Types } from 'mongoose';
+import { IUser } from '../../interfaces/auth';
 
 const TABLE = E_TABLES.TWEETS;
 
 export default {
-  async getTweets() {
+  async getTweets(feedType: TTimeline, following: string[] = []) {
     try {
       const fieldsToPopulate = '_id name username profileImg';
-      const tweets = await store.list(TABLE, {
+      console.log(feedType, following);
+      const tweets = await store.list<ITweet>(TABLE, {
+        filter: feedType === 'all' ? undefined : { owner: { $in: following.map((id) => new Types.ObjectId(id)) } },
         populate: [
           { field: 'owner', select: fieldsToPopulate },
           { field: 'likes', select: fieldsToPopulate },

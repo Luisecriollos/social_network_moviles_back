@@ -7,7 +7,7 @@ const TABLE = E_TABLES.USER;
 
 export default {
   async login(email: string, password: string) {
-    const data = (await store.query<IUser>(TABLE, { filter: { email } }))[0];
+    const data = (await store.list<IUser>(TABLE, { filter: { email } }))[0];
 
     if (!data) {
       throw Error('Contrasena/usuario invalido.');
