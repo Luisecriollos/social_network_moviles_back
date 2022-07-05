@@ -9,25 +9,27 @@ const RETWEET_TABLE = E_TABLES.RETWEETS;
 export default {
   async getTweets(feedType: TTimeline, following: string[] = []) {
     const fieldsToPopulate = '_id name username profileImg';
-    console.log(feedType, following);
-    const tweets = await store.list<ITweet>(TABLE, {
-      filter: feedType === 'all' ? undefined : { owner: { $in: following.map((id) => new Types.ObjectId(id)) } },
-      populate: [
-        { field: 'owner', select: fieldsToPopulate },
-        { field: 'likes', select: fieldsToPopulate },
-      ],
-    });
+    const tweets = await store
+      .list<ITweet>(TABLE, {
+        filter: feedType === 'all' ? undefined : { owner: { $in: following.map((id) => new Types.ObjectId(id)) } },
+        populate: [
+          { field: 'owner', select: fieldsToPopulate },
+          { field: 'likes', select: fieldsToPopulate },
+        ],
+      })
+      .sort({ created_date: 'desc' });
     return tweets;
   },
   async getRetweets(feedType: TTimeline, following: string[] = []) {
-    console.log(feedType, following);
-    const tweets = await store.list<IRetweet>(RETWEET_TABLE, {
-      filter: feedType === 'all' ? undefined : { user: { $in: following.map((id) => new Types.ObjectId(id)) } },
-      populate: [
-        { field: 'user', select: '_id name username profileImg' },
-        { field: 'tweet', select: '_id content created_at likes' },
-      ],
-    });
+    const tweets = await store
+      .list<IRetweet>(RETWEET_TABLE, {
+        filter: feedType === 'all' ? undefined : { user: { $in: following.map((id) => new Types.ObjectId(id)) } },
+        populate: [
+          { field: 'user', select: '_id name username profileImg' },
+          { field: 'tweet', select: '_id content created_at likes' },
+        ],
+      })
+      .sort({ created_date: 'desc' });
     return tweets;
   },
   async addTweet(data: ITweet) {

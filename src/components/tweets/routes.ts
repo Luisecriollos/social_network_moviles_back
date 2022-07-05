@@ -11,8 +11,9 @@ const router = express.Router();
 
 const getTweets = async (req: Request<any, unknown, unknown, { type: TTimeline }>, res: Response) => {
   let type = req.query.type;
+  const userId = req.user?._id.toString();
 
-  if (!req.user?._id)
+  if (!userId)
     return response.error(req, res, {
       message: 'Unathorized',
       status: 401,
@@ -21,11 +22,10 @@ const getTweets = async (req: Request<any, unknown, unknown, { type: TTimeline }
   if (!type) type = 'all';
   try {
     let following: string[] = [];
-    if (type === 'followers')
-      following = (await followersController.getFollowing(req.user._id.toString())).map((user) => user._id.toString());
+    if (type === 'followers') following = (await followersController.getFollowing(userId)).map((user) => user._id.toString());
 
-    const tweets = await controller.getTweets(type, following);
-    const retweets = await controller.getRetweets(type, following);
+    const tweets = await controller.getTweets(type, [userId, ...following]);
+    const retweets = await controller.getRetweets(type, [userId, ...following]);
 
     response.success(req, res, {
       message: 'Tweets retrieved successfully!',
