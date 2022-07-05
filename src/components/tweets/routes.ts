@@ -24,14 +24,16 @@ const getTweets = async (req: Request<any, unknown, unknown, { type: TTimeline }
     let following: string[] = [];
     if (type === 'followers') following = (await followersController.getFollowing(userId)).map((user) => user._id.toString());
 
-    const tweets = await controller.getTweets(type, [userId, ...following]);
-    const retweets = await controller.getRetweets(type, [userId, ...following]);
+    const tweets = await Promise.all([
+      controller.getTweets(type, [userId, ...following]),
+      controller.getRetweets(type, [userId, ...following]),
+    ]);
 
     response.success(req, res, {
       message: 'Tweets retrieved successfully!',
       body: {
-        tweets,
-        retweets,
+        tweets: tweets[0],
+        retweets: tweets[1],
       },
     });
   } catch (error: any) {

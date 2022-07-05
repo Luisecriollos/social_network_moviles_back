@@ -21,13 +21,22 @@ export default {
     return tweets;
   },
   async getRetweets(feedType: TTimeline, following: string[] = []) {
+    const userFields = '_id name username profileImg';
     const tweets = await store
       .list<IRetweet>(RETWEET_TABLE, {
         filter: feedType === 'all' ? undefined : { user: { $in: following.map((id) => new Types.ObjectId(id)) } },
         populate: [
-          { field: 'user', select: '_id name username profileImg' },
+          { field: 'user', select: userFields },
           { field: 'tweet', select: '_id content created_at likes' },
         ],
+      })
+      .populate({
+        path: 'tweet',
+        populate: { path: 'owner', select: userFields },
+      })
+      .populate({
+        path: 'tweet',
+        populate: { path: 'likes', select: userFields },
       })
       .sort({ created_date: 'desc' });
     return tweets;
