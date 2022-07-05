@@ -47,7 +47,7 @@ passport.use(passportMiddleware);
 
 app.use('/auth', authRoutes);
 app.use('/tweets', loggedIn, tweetRoutes);
-app.use('/follow', loggedIn, followRoutes);
+app.use('/user', loggedIn, followRoutes);
 app.use('/search', searchRoutes);
 
 const port = config.api.PORT;

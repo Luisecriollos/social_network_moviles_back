@@ -4,16 +4,13 @@ import controller from './controller';
 
 const router = express.Router();
 
-const getFollowers = async (req: Request<{ id: string }>, res: Response) => {
-  let userId = req.params.id;
+const getFollowers = async (req: Request<{ id?: string }>, res: Response) => {
+  const userId = req.params.id ?? req.user?._id.toString();
 
-  if (!userId && !req.user?._id) {
+  if (!userId) {
     return response.error(req, res, {
       message: 'Invalid body.',
     });
-  }
-  if (!userId && req.user?._id) {
-    userId = req.user._id.toString();
   }
 
   try {
@@ -28,7 +25,24 @@ const getFollowers = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
-const followUser = async (req: Request<{ id: string }>, res: Response) => {
+const getFollowing = async (req: Request<{ id?: string }>, res: Response) => {
+  const userId = req.params.id ?? req.user?._id.toString();
+
+  if (!userId) return response.error(req, res, { message: 'Invalid Body' });
+
+  try {
+    const following = await controller.getFollowing(userId);
+    response.success(req, res, {
+      body: following,
+    });
+  } catch (error: any) {
+    response.error(req, res, {
+      details: error.message,
+    });
+  }
+};
+
+const followUser = async (req: Request<{ id?: string }>, res: Response) => {
   const followedId = req.params.id;
   const followerId = req.user?._id;
 
@@ -57,6 +71,7 @@ const followUser = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
-router.route('/:id?').get(getFollowers).post(followUser);
+router.get('/following/:id?', getFollowing);
+router.route('/follow/:id?').get(getFollowers).post(followUser);
 
 export default router;
