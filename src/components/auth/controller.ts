@@ -39,7 +39,7 @@ export default {
 
   async updateProfile(user: IUser) {
     try {
-      const updatedUser = await store.upsert<IUser>(TABLE, user).select('_id email name username profileImg');
+      const updatedUser = await store.upsert<IUser>(TABLE, user);
       return updatedUser;
     } catch (error) {
       throw error;
