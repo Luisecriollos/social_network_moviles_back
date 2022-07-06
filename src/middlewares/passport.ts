@@ -11,16 +11,20 @@ const opts = {
 };
 
 export default new JwtStrategy(opts, function (jwtPayload, done) {
-  User.findById(jwtPayload._id, function (err: any, user: HydratedDocument<IUser>) {
-    if (err) {
-      return done(err, false);
+  User.findById(
+    jwtPayload._id,
+    '_id name email username phoneNumber profileImg',
+    function (err: any, user: HydratedDocument<IUser>) {
+      if (err) {
+        return done(err, false);
+      }
+      if (user) {
+        return done(null, user.toJSON());
+      } else {
+        return done(null, false);
+      }
     }
-    if (user) {
-      return done(null, user.toJSON());
-    } else {
-      return done(null, false);
-    }
-  }).select('_id name email phoneNumber profileImg');
+  );
 });
 
 passport.serializeUser((user, done) => {
@@ -28,7 +32,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id, (err: any, user: IUser) => {
+  User.findById(id, '_id name email username phoneNumber profileImg', (err: any, user: IUser) => {
     done(err, user);
   });
 });
